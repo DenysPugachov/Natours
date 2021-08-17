@@ -1,39 +1,34 @@
-const fs = require("fs")
+//Express related staff
 const express = require("express")
+const morgan = require("morgan")
+
+const tourRouter = require("./routes/tourRoutes")
+const userRouter = require("./routes/userRoutes")
 
 const app = express()
 
-// app.get("/", (req, res) => {
-//   res.status(404).json({ message: "Hello form the server side!", app: "Natours" })
-// })
+//Middleware
+// console.log(process.env.NODE_ENV)
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"))// HTTP request logger
+}
 
-// app.post("/", (req, res) => {
-//   res.send("You can post to this input")
-// })
+app.use(express.json())
+app.use(express.static(`${__dirname}/public`))//serves static files
 
-
-const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`))
-
-
-app.get("/api/v1/tours", (req, res) => {
-  //formatting with JSend
-  res.status(200).json({
-    status: "success",
-    results: tours.length,
-    data: {
-      tours
-    }
-  })
+app.use((req, res, next) => {
+  console.log("This message form custom middleware!!!!")
+  next()
 })
 
-app.post("/api/v1/tours", (req, res)=>{
-
+app.use((req, res, next) => {
+  //when exactly the request happens
+  req.requestTime = new Date().toISOString()
+  next()
 })
 
 
+app.use("/api/v1/tours", tourRouter)
+app.use("/api/v1/users", userRouter)
 
-
-const port = 3000
-app.listen(port, () => {
-  console.log(`App running on port ${port}...`)
-})
+module.exports = app

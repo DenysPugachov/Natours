@@ -466,5 +466,16 @@
         "day": 5
       }
     ]
-  }
+  },
+  {
+    "id": null,
+    "name": "Test post tours 2",
+    "duration": 7,
+    "dificulty": "easy"
+  },
+  { "id": 1, "name": "Test post tours 2", "duration": 7, "dificulty": "easy" },
+  { "id": 2, "name": "Test post tours 2", "duration": 7, "dificulty": "easy" },
+  { "id": 3, "name": "Test post tours 2", "duration": 7, "dificulty": "easy" },
+  { "id": 4, "name": "Test post tours 2", "duration": 7, "dificulty": "easy" },
+  { "id": 5, "name": "Test post tours 2", "duration": 7, "dificulty": "easy" }
 ]
