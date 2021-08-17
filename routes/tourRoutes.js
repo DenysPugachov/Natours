@@ -6,8 +6,8 @@ const {
   updateTour,
   deleteTour,
   checkId,
-  checkBody
-} = require("./../controllers/tourController")
+  checkBody,
+} = require("../controllers/tourController")
 
 const router = express.Router()
 
