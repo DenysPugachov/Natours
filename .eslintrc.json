@@ -9,9 +9,12 @@
   ],
   "rules": {
     "prettier/prettier": [
-      "error",
+      "warn",
       {
-        "endOfLine": "off"
+        "trailingComma": "all",
+        "singleQuote": false,
+        "semi": false,
+        "endOfLine": "auto"
       }
     ],
     "spaced-comment": "off",
@@ -32,7 +35,7 @@
       }
     ],
     "no-unused-vars": [
-      "error",
+      "warn",
       {
         "argsIgnorePattern": "req|res|next|val"
       }
