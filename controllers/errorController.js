@@ -34,14 +34,15 @@ const sendErrorProd = (err, res) => {
 }
 
 module.exports = (err, req, res, next) => {
-  console.log(err.stack)
+  // console.log(err.stack)
   err.statusCode = err.statusCode || 500 // 500 - internal sever error
   err.status = err.status || "error"
 
   if (process.env.NODE_ENV === "development") {
     sendErrorDev(err, res)
   } else if (process.env.NODE_ENV === "production") {
-    let error = { ...err }
+    //deep copy obj ({...err} => error.name=undefined)
+    let error = JSON.parse(JSON.stringify(err))
 
     if (error.name === "CastError") error = handleCastErrorDB(error)
 
