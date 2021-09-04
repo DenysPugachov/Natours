@@ -14,11 +14,12 @@
         "trailingComma": "all",
         "singleQuote": false,
         "semi": false,
-        "endOfLine": "auto"
+        "endOfLine": "auto",
+        "arrowParens": "avoid"
       }
     ],
     "spaced-comment": "off",
-    "no-console": "warn",
+    "no-console": "off",
     "consistent-return": "off",
     "func-names": "off",
     "object-shorthand": "off",

@@ -1,20 +1,26 @@
 const express = require("express")
-const {
-  getAllTours,
-  createTour,
-  getTour,
-  updateTour,
-  deleteTour,
-  // checkId,
-  checkBody,
-} = require("../controllers/tourController")
+const tourController = require("../controllers/tourController")
 
 const router = express.Router()
 
 // router.param("id", checkId) //middleware to validate id
 
-router.route("/").get(getAllTours).post(checkBody, createTour)
+router
+  .route("/top-5-cheap")
+  .get(tourController.aliasTopTours, tourController.getAllTours)
 
-router.route("/:id").get(getTour).patch(updateTour).delete(deleteTour)
+router.route("/tour-stats").get(tourController.getTourStats)
+router.route("/monthly-plan/:year").get(tourController.getMonthlyPlan)
+
+router
+  .route("/")
+  .get(tourController.getAllTours)
+  .post(tourController.createTour)
+
+router
+  .route("/:id")
+  .get(tourController.getTour)
+  .patch(tourController.updateTour)
+  .delete(tourController.deleteTour)
 
 module.exports = router
