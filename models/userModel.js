@@ -28,8 +28,8 @@ const userSchema = new mongoose.Schema({
     required: [true, "Please, provide a password!"],
     validate: {
       //Only work on CREATE & SAVE!!! (do NOT work in UPDATE!)
-      // return => "true"=ok || "false"=validation error
       validator: function (el) {
+        // return => "true"=ok || "false"=validation error
         return el === this.password // abc === abc
       },
       message: "Password are not the same!",
