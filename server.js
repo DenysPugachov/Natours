@@ -21,10 +21,20 @@ mongoose
 
 //server
 const port = process.env.PORT || 8000
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(
     `mode: ${process.env.NODE_ENV}
     App running on port ${port}...`,
   )
 })
 
+//handle global errors (catch unhandled rejection promises )
+process.on("unhandledRejection", err => {
+  console.log(err.name, err.message)
+  console.log("UNHANDLED REJECTION! Shuting down app...")
+  //close the server (wait for ending req.)
+  server.close(() => {
+    //shutdown app immediately
+    process.exit(1)
+  })
+})
