@@ -1,12 +1,12 @@
 const mongoose = require("mongoose")
 const validator = require("validator")
+const bcrypt = require("bcryptjs")
 
 //Schema
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, "Please, tell us your name!"],
-    unique: true,
     trim: true,
   },
   email: {
@@ -26,8 +26,26 @@ const userSchema = new mongoose.Schema({
   passwordConfirm: {
     type: String,
     required: [true, "Please, provide a password!"],
-    //TODO: password === passwordConfirm
+    validate: {
+      //Only work on CREATE & SAVE!!! (do NOT work in UPDATE!)
+      // return => "true"=ok || "false"=validation error
+      validator: function (el) {
+        return el === this.password // abc === abc
+      },
+      message: "Password are not the same!",
+    },
   },
+})
+
+//encrypt user password (between getting data and saving it to DB)
+userSchema.pre("save", async function (next) {
+  //run this fn if password was modified
+  if (!this.isModified("password")) return next()
+  //hash(encrypt) password
+  this.password = await bcrypt.hash(this.password, 12) //12 = Salt(cost) length(random string that added to the password)
+  //delete confirm password field after password was encrypted
+  this.passwordConfirm = undefined
+  next()
 })
 
 //create Model out of schema
