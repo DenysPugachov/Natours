@@ -1,5 +1,14 @@
 const mongoose = require("mongoose")
 const dotenv = require("dotenv")
+
+//Catch exception (e.g. console.log(undeclared variable))
+process.on("uncaughtException", err => {
+  console.log("UNHANDLED EXCEPTION! Shuting down app...")
+  console.log(err.name, err.message)
+  //shutdown app immediately
+  process.exit(1)
+})
+
 //config need to be defined before require("app")
 dotenv.config({ path: "./config.env" })
 const app = require("./app")
@@ -38,3 +47,5 @@ process.on("unhandledRejection", err => {
     process.exit(1)
   })
 })
+
+

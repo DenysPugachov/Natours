@@ -22,7 +22,6 @@ app.use((req, res, next) => {
   req.requestTime = new Date().toISOString()
   next()
 })
-
 //ROUTES
 app.use("/api/v1/tours", tourRouter)
 app.use("/api/v1/users", userRouter)
