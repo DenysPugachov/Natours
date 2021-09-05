@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
   passwordConfirm: {
     type: String,
     required: [true, "Please, provide a password!"],
-    //FIXME: password === passwordConfirm
+    //TODO: password === passwordConfirm
   },
 })
 
