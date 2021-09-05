@@ -10,36 +10,36 @@ const tourSchema = new mongoose.Schema(
       required: [true, "A tour must have a name!"],
       unique: true, // no duplicate name
       trim: true,
-      maxlength: [40, "A tour name length must have >=40 char"],
-      minlength: [10, "A tour name length must have <10 char"],
+      maxlength: [40, "A tour name length must have >= 40 char. "],
+      minlength: [10, "A tour name length must have < 10 char. "],
       validate: {
         validator: val => validator.isAlpha(val, ["en-US"], { ignore: " " }),
-        message: "A tour name must only contain characters between A-Z",
+        message: "A tour name must only contain characters between A-Z. ",
       },
     },
     slug: String,
     duration: {
       type: Number,
-      required: [true, "A tour mus have a duration"],
+      required: [true, "A tour mus have a duration. "],
     },
     maxGroupSize: {
       type: Number,
-      required: [true, "A tour must have a group size"],
+      required: [true, "A tour must have a group size. "],
     },
     difficulty: {
       type: String,
-      required: [true, "A tour should have a difficulty"],
+      required: [true, "A tour should have a difficulty. "],
       // validator for String ONLY!
       enum: {
         values: ["easy", "medium", "difficult"],
-        message: "Difficulty is either: easy, medium, difficult",
+        message: "Difficulty is either: easy, medium, difficult. ",
       },
     },
     ratingsAverage: {
       type: Number,
       default: 4.5,
-      min: [1, "Rating must be above 1.0"],
-      max: [5, "Rating must be below 5.0"],
+      min: [1, "Rating must be above 1.0. "],
+      max: [5, "Rating must be below 5.0. "],
     },
     ratingsQuantity: {
       type: Number,
@@ -47,7 +47,7 @@ const tourSchema = new mongoose.Schema(
     },
     price: {
       type: Number,
-      required: [true, "A tour must have a price!"],
+      required: [true, "A tour must have a price! "],
     },
     priceDiscount: {
       type: Number,
@@ -57,7 +57,7 @@ const tourSchema = new mongoose.Schema(
           // this only points to current doc on NEW document creation
           return discountVal < this.price
         },
-        message: "Discount price {VALUE} should be below the regular price!",
+        message: "Discount price {VALUE} should be below the regular price! ",
       },
     },
     summery: {
@@ -67,11 +67,11 @@ const tourSchema = new mongoose.Schema(
     description: {
       type: String,
       trim: true,
-      required: [true, "A tour must have a description"],
+      required: [true, "A tour must have a description. "],
     },
     imageCover: {
       type: String,
-      required: [true, "A tour must have a cover image"],
+      required: [true, "A tour must have a cover image. "],
     },
     images: [String], //type an array of stings
     createdAt: {
@@ -117,7 +117,7 @@ tourSchema.pre(/^find/, function (next) {
 })
 
 tourSchema.post(/^find/, function (docs, next) {
-  console.log(`Query took ${Date.now() - this.start} milliseconds!`)
+  console.log(`Query took ${Date.now() - this.start} milliseconds! `)
   console.log(docs)
   next()
 })
