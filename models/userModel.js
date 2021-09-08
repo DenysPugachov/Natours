@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema({
     trim: true,
     required: [true, "Please, provide a password!"],
     minlength: [8, "Password must have min 8 chars. "],
+    select: false, // hide from output
   },
   passwordConfirm: {
     type: String,
@@ -47,6 +48,14 @@ userSchema.pre("save", async function (next) {
   this.passwordConfirm = undefined
   next()
 })
+
+//create Instance method (available in all docs in a certain collection)
+userSchema.methods.correctPassword = async function (
+  candidatePassword,
+  userPasswordHashed,
+) {
+  return await bcrypt.compare(candidatePassword, userPasswordHashed)
+}
 
 //create Model out of schema
 const User = mongoose.model("User", userSchema)
