@@ -1,11 +1,5 @@
 const express = require("express")
-const {
-  getAllUsers,
-  createUser,
-  getUser,
-  updateUser,
-  deleteUser,
-} = require("../controllers/userController")
+const userController = require("../controllers/userController")
 const authController = require("../controllers/authController")
 
 const router = express.Router()
@@ -16,8 +10,15 @@ router.post("/signup", authController.signup)
 //route for login users (only "POST" data)
 router.post("/login", authController.login)
 
-router.route("/").get(getAllUsers).post(createUser)
+router
+  .route("/")
+  .get(userController.getAllUsers)
+  .post(userController.createUser)
 
-router.route("/:id").get(getUser).patch(updateUser).delete(deleteUser)
+router
+  .route("/:id")
+  .get(userController.getUser)
+  .patch(userController.updateUser)
+  .delete(userController.deleteUser)
 
 module.exports = router

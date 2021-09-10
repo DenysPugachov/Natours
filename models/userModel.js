@@ -36,6 +36,7 @@ const userSchema = new mongoose.Schema({
       message: "Password are not the same!",
     },
   },
+  passwordChangedAt: Date,
 })
 
 //encrypt user password (between getting data and saving it to DB)
@@ -49,12 +50,33 @@ userSchema.pre("save", async function (next) {
   next()
 })
 
-//create Instance method (available in all docs in a certain collection)
+//create static (instance) method (available in all docs in a certain collection)
 userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPasswordHashed,
 ) {
   return await bcrypt.compare(candidatePassword, userPasswordHashed)
+}
+
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10,
+    )
+
+    // console.log(
+    //   "\nchangedTimestamp =",
+    //   changedTimestamp,
+    //   "\nJWTTimestamp     =",
+    //   JWTTimestamp,
+    //   "\nthis.passwordChangedAt =",
+    //   this.passwordChangedAt,
+    // )
+    return JWTTimestamp < changedTimestamp // =>"true" = pass was changed (100 < 200)
+  }
+
+  return false // password was not changed
 }
 
 //create Model out of schema

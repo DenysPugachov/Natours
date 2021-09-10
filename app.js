@@ -20,6 +20,9 @@ app.use(express.static(`${__dirname}/public`)) //serves static files
 
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString()
+  // get access to headers
+  // console.log("\n ======== ================ headers", req.headers)
+
   next()
 })
 //ROUTES
