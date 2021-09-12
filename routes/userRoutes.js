@@ -6,9 +6,11 @@ const router = express.Router()
 
 //route for signup users (only "POST" data)
 router.post("/signup", authController.signup)
-
 //route for login users (only "POST" data)
 router.post("/login", authController.login)
+
+router.post("/forgotPassword", authController.forgotPassword)
+router.patch("/resetPassword/:token", authController.resetPassword)
 
 router
   .route("/")

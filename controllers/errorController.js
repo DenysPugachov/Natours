@@ -7,6 +7,7 @@ const handleJWTError = () =>
   new AppError("Invalid token. Please log in again.", 401) // 401 unauthorize
 
 const handleValidationErrorDB = err => {
+  console.log("handleValidationErrorDB=err =>", err)
   const errors = Object.values(err.errors).map(el => el.message)
   const message = `Invalid input data. ${errors.join(" ")}`
   return new AppError(message, 400)
@@ -23,6 +24,7 @@ const handleCastErrorDB = err => {
 }
 
 const sendErrorDev = (err, res) => {
+  console.log("sendErrorDev = ", err)
   res.status(err.statusCode).json({
     status: err.status,
     error: err,

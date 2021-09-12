@@ -1,3 +1,4 @@
+const crypto = require("crypto")
 const mongoose = require("mongoose")
 const validator = require("validator")
 const bcrypt = require("bcryptjs")
@@ -34,14 +35,22 @@ const userSchema = new mongoose.Schema({
     required: [true, "Please, provide a password!"],
     validate: {
       //Only work on CREATE & SAVE!!! (do NOT work in UPDATE!)
-      validator: function (el) {
+      validator: function (confirmedPassword) {
+        // console.log(
+        //   "Form Validator confirmedPassword: ",
+        //   confirmedPassword,
+        //   "\n this.password: ",
+        //   this.password,
+        // )
         // return => "true"=ok || "false"=validation error
-        return el === this.password // abc === abc
+        return confirmedPassword === this.password // abc === abc
       },
-      message: "Password are not the same!",
+      message: "Passwords are not the same!",
     },
   },
   passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 })
 
 //encrypt user password (between getting data and saving it to DB)
@@ -51,6 +60,16 @@ userSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, 12) //12 = Salt(cost) length(random string that added to the password)
   //delete confirm password field after password was encrypted
   this.passwordConfirm = undefined
+  next()
+})
+
+//middleware for updating field when password was modified
+userSchema.pre("save", function (next) {
+  // if password was NOT modified || the document is new => exit
+  if (!this.isModified("password") || this.isNew) return next()
+
+  // set timestamp to now
+  this.passwordChangedAt = Date.now() - 1000 // minus 1 sec. to be sure that token was created (in DB) after password was changed (DB need time to write )
   next()
 })
 
@@ -71,12 +90,26 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
     return JWTTimestamp < changedTimestamp // =>"true" = pass was changed (100 < 200)
   }
 
-  return false // password was not changed
+  return false // "false" means password was not changed
+}
+
+userSchema.methods.createPasswordResetToken = function () {
+  //create random string in Hex format
+  const resetToken = crypto.randomBytes(32).toString("hex")
+  // encrypt token
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex")
+
+  console.log({ resetToken }, this.passwordResetToken)
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000 // + add 10min to user for resetting the password
+
+  return resetToken
 }
 
 //create Model out of schema
 const User = mongoose.model("User", userSchema)
 
 module.exports = User
-
-// start for 134
