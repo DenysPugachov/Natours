@@ -1,9 +1,9 @@
 const { promisify } = require("util") // return a promise form func
 const jwt = require("jsonwebtoken")
+const { appendFile } = require("fs")
 const User = require("../models/userModel")
 const catchAsync = require("../utils/catchAsync")
 const AppError = require("../utils/appError")
-const { appendFile } = require("fs")
 
 const signToken = id =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -19,6 +19,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
     passwordChangedAt: req.body.passwordChangedAt,
+    // role: req.body.role,// insecure, add admins only with Compass
   })
   const token = signToken(newUser._id)
   res.status(201).json({
@@ -82,8 +83,23 @@ exports.protect = catchAsync(async (req, res, next) => {
       new AppError("User recently changed password! Please log in again.", 401),
     )
   }
-
   //Grant access to protected route (with current token)
   req.user = currentUser
   next()
 })
+
+//passing arguments to middleware func with array [who will allow modify data]
+// eslint-disable-next-line arrow-body-style
+exports.restrictTo = (...roles) => {
+  // return middleware func
+  return (req, res, next) => {
+    //roles ["admin", "lead-guide"]. role="user"
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError("You do not have permission to reform this action", 403), // 403 = forbidden
+      )
+    }
+    next()
+  }
+}
+// 133 11:35

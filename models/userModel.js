@@ -17,6 +17,11 @@ const userSchema = new mongoose.Schema({
     validate: [validator.isEmail, "Please, provide a valid email!"],
   },
   photo: String,
+  role: {
+    type: String,
+    enum: ["user", "guide", "lead-guide", "admin"],
+    default: "user",
+  },
   password: {
     type: String,
     trim: true,
@@ -41,7 +46,6 @@ const userSchema = new mongoose.Schema({
 
 //encrypt user password (between getting data and saving it to DB)
 userSchema.pre("save", async function (next) {
-  //run this fn if password was modified
   if (!this.isModified("password")) return next()
   //hash(encrypt) password
   this.password = await bcrypt.hash(this.password, 12) //12 = Salt(cost) length(random string that added to the password)
@@ -64,15 +68,6 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
       this.passwordChangedAt.getTime() / 1000,
       10,
     )
-
-    // console.log(
-    //   "\nchangedTimestamp =",
-    //   changedTimestamp,
-    //   "\nJWTTimestamp     =",
-    //   JWTTimestamp,
-    //   "\nthis.passwordChangedAt =",
-    //   this.passwordChangedAt,
-    // )
     return JWTTimestamp < changedTimestamp // =>"true" = pass was changed (100 < 200)
   }
 
@@ -83,3 +78,5 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
 const User = mongoose.model("User", userSchema)
 
 module.exports = User
+
+// start for 134
