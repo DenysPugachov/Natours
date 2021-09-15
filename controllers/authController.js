@@ -12,6 +12,17 @@ const signToken = id =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   })
 
+const createSendToken = (user, statusCode, res) => {
+  const token = signToken(user._id)
+  res.status(statusCode).json({
+    status: "success",
+    token, // needed to signup user
+    data: {
+      user,
+    },
+  })
+}
+
 exports.signup = catchAsync(async (req, res, next) => {
   // const newUser = await User.create(req.body)// NOT secure approach (use req.body)
   //this approach limit fields that putted here (add admins only with Compass)
@@ -23,14 +34,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordChangedAt: req.body.passwordChangedAt,
     // role: req.body.role,// insecure, add admins only with Compass
   })
-  const token = signToken(newUser._id)
-  res.status(201).json({
-    status: "success",
-    token, // needed to signup user
-    data: {
-      user: newUser,
-    },
-  })
+
+  createSendToken(newUser, 201, res)
 })
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -44,11 +49,7 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError("Incorrect email or password!", 401)) // 401 = unauthorize
   }
   // send token to client
-  const token = signToken(user.id)
-  res.status(200).json({
-    status: "success",
-    token,
-  })
+  createSendToken(user, 201, res)
 })
 
 // protect rout from unauthenticated users
@@ -175,9 +176,24 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   await user.save()
 
   // 4) log in the user and send JWT
-  const token = signToken(user._id)
-  res.status(201).json({
-    status: "success",
-    token,
-  })
+  createSendToken(user, 201, res)
+})
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  // 1.Get user from collection
+  const user = await User.findById(req.user.id).select("+password")
+
+  // 2.Check if POSTed current password is correct
+  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+    return next(new AppError("Your current password is wrong.", 401))
+  }
+
+  // 3.Update the password
+  user.password = req.body.password
+  user.passwordConfirm = req.body.passwordConfirm
+  await user.save()
+  // User.findByIdAndUpdate => will NOT work validation(in userModel) and wil be skipped middleware (hashing password)
+
+  //4.Log the user in, and send JWT token to client
+  createSendToken(user, 201, res)
 })

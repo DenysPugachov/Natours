@@ -36,12 +36,6 @@ const userSchema = new mongoose.Schema({
     validate: {
       //Only work on CREATE & SAVE!!! (do NOT work in UPDATE!)
       validator: function (confirmedPassword) {
-        // console.log(
-        //   "Form Validator confirmedPassword: ",
-        //   confirmedPassword,
-        //   "\n this.password: ",
-        //   this.password,
-        // )
         // return => "true"=ok || "false"=validation error
         return confirmedPassword === this.password // abc === abc
       },
