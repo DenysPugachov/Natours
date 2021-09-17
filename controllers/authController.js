@@ -14,6 +14,20 @@ const signToken = id =>
 
 const createSendToken = (user, statusCode, res) => {
   const token = signToken(user._id)
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.nextTick.JWT_EXPIRES_IN * 24 * 60 * 60 * 1000, // convert days to ms
+    ),
+    httpOnly: true, // can NOT be accessed or modified from browser (prevent Cross Site Scripting Attack)
+  }
+
+  if (process.env.NODE_ENV === "production") cookieOptions.secure = true // use only in production
+  // create & send cookie
+  res.cookie("jwt", token, cookieOptions)
+
+  //Remove the password from the output
+  user.password = undefined
+
   res.status(statusCode).json({
     status: "success",
     token, // needed to signup user
