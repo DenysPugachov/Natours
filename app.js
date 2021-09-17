@@ -4,6 +4,7 @@ const rateLimit = require("express-rate-limit")
 const helmet = require("helmet")
 const mongoSanitize = require("express-mongo-sanitize")
 const xss = require("xss-clean")
+const hpp = require("hpp")
 
 const globalErrorHandler = require("./controllers/errorController")
 const AppError = require("./utils/appError")
@@ -42,6 +43,20 @@ app.use(mongoSanitize()) // remove all "$" and "."
 
 // Data sanitization against XSS (Cross Site Scripting Attacks)
 app.use(xss())
+
+// protect against HTTP Parameter Pollution attacks (return only last parameter by default)
+app.use(
+  hpp({
+    whitelist: [
+      "duration",
+      "difficulty",
+      "ratingsAverage",
+      "ratingsQuantity",
+      "maxGroupSize",
+      "price",
+    ], // add allowed params
+  }),
+) // use last parameter by default(without arguments)
 
 // Serving static files
 app.use(express.static(`${__dirname}/public`)) //serves static files

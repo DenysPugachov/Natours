@@ -20,6 +20,7 @@ class APIFeatures {
   sort() {
     //query key: ?sort=-price
     if (this.queryString.sort) {
+      // console.log("this.queryString.sort=", this.queryString.sort)
       const sortBy = this.queryString.sort.split(",").join(" ")
       this.query = this.query.sort(sortBy)
     } else {
