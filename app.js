@@ -1,6 +1,7 @@
 const express = require("express")
 const morgan = require("morgan")
 const rateLimit = require("express-rate-limit")
+const helmet = require("helmet")
 
 const globalErrorHandler = require("./controllers/errorController")
 const AppError = require("./utils/appError")
@@ -10,11 +11,15 @@ const userRouter = require("./routes/userRoutes")
 const app = express()
 
 // Global Middleware
+// Set Security HTTP headers
+app.use(helmet())
+
+// Development logs
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev")) // HTTP request logger
 }
 
-// limit requests allowing to certain amount of time from one IP
+// limit requests from same IP
 const limiter = rateLimit({
   max: 100, // allow 100 requests from same IP
   windowMs: 60 * 60 * 1000, // 1 hour
@@ -23,9 +28,16 @@ const limiter = rateLimit({
 // Limit access to "/api" route
 app.use("/api", limiter)
 
-app.use(express.json())
+// Body parser = reading data from body to req.body
+app.use(
+  express.json({
+    limit: "10kb", // limit data coming from body
+  }),
+)
+// Serving static files
 app.use(express.static(`${__dirname}/public`)) //serves static files
 
+// Test middleware
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString()
   next()
