@@ -21,9 +21,7 @@ mongoose
   .then(() => console.log("DB connection successful!"))
 
 //read JSON file
-const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/tours-simple.json`, "utf-8"),
-)
+const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, "utf-8"))
 
 //import data to DB
 const importData = async () => {
@@ -55,4 +53,4 @@ if (process.argv[2] === "--import") {
   console.log("Error!!! Wrong flag. Choose one of --import or --delete")
 }
 
-console.log(process.argv)f
+console.log(process.argv)

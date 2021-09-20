@@ -1,6 +1,7 @@
 const mongoose = require("mongoose")
 const slugify = require("slugify")
 const validator = require("validator")
+const User = require("./userModel")
 
 //Schema
 const tourSchema = new mongoose.Schema(
@@ -84,6 +85,31 @@ const tourSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    startLocation: {
+      // GeoJSON
+      type: {
+        type: String,
+        default: "Point",
+        enum: ["Point"],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: "Point",
+          enum: ["Point"],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
+    guides: Array,
   },
   //option object
   {
@@ -105,6 +131,14 @@ tourSchema.pre("save", function (next) {
   //slug - short alias for long URL
   this.slug = slugify(this.name, { lower: true })
   next() // call next middleware on the stack
+})
+
+// retrieve full guide info in Tour document (Embedding)
+tourSchema.pre("save", async function (next) {
+  // this => current document
+  const guidesPromises = this.guides.map(async id => await User.findById(id))
+  this.guides = await Promise.all(guidesPromises)
+  next()
 })
 
 //QUERY MIDDLEWARE => pre: processing query ("find" Hook) before execution
