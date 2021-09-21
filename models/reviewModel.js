@@ -11,15 +11,18 @@ const reviewSchema = new mongoose.Schema(
       minlength: [3, "A review must have min 3 char."],
       maxlength: [2000, "A review size overflow (2000 char)."],
       validate: {
-        validator: val => validator.isAlpha(val, ["en-US"], { ignore: " " }),
+        validator: val =>
+          validator.isAlpha(val, ["en-US"], { ignore: " .0123456789" }),
         message: "A review must only contain characters between A-Z. ",
       },
     },
     rating: {
       type: Number,
       required: [true, "Please, rate this tour."],
+      // min: 1,
+      // max: 5,
       min: [1, "Rating, must be above 1.0"],
-      max: [1, "Rating, must be below 5.0"],
+      max: [5, "Rating, must be below 5.0"],
     },
     createdAt: {
       type: Date,
@@ -47,7 +50,8 @@ const reviewSchema = new mongoose.Schema(
 
 // populate referencing data with middleware
 reviewSchema.pre(/^find/, function (next) {
-  this.populate("tour", "user")
+  this.populate("user tour")
+  next()
 })
 
 //create Model out of schema
