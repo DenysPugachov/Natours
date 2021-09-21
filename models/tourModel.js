@@ -63,7 +63,7 @@ const tourSchema = new mongoose.Schema(
     },
     summery: {
       type: String,
-      trim: true, //schema type => remove white spaces around
+      trim: true,
     },
     description: {
       type: String,
@@ -74,7 +74,7 @@ const tourSchema = new mongoose.Schema(
       type: String,
       required: [true, "A tour must have a cover image. "],
     },
-    images: [String], //type an array of stings
+    images: [String],
     createdAt: {
       type: Date,
       default: Date.now(),
@@ -115,8 +115,15 @@ const tourSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    // reviews: [
+    //   // Child referencing Tour -> Review
+    //   {
+    //     type: mongoose.Schema.ObjectId,
+    //     ref: "Review", // connected with
+    //   },
+    // ],
   },
-  //option object
+  //optional object
   {
     //each time as data outputted as JSON
     toJSON: { virtuals: true }, //virtual to be part of output
@@ -128,6 +135,13 @@ const tourSchema = new mongoose.Schema(
 // (*not work with query selection)
 tourSchema.virtual("durationWeeks").get(function () {
   return this.duration / 7
+})
+
+// virtual populating tour with reviews
+tourSchema.virtual("reviews", {
+  ref: "Review", // name of the model than we want to reference
+  foreignField: "tour", // name of the field where in the ref:("Review") is stored info(id) about tour
+  localField: "_id", // where this info(id) is actually stored in the current(Review.tour) model
 })
 
 //DOCUMENT MIDDLEWARE(hook): runs before events: .save(), .create() (NOT for .update())
@@ -157,13 +171,12 @@ tourSchema.pre(/^find/, function (next) {
 
 // populate data about "guides" with id (Referencing)
 tourSchema.pre(/^find/, function (next) {
-  this.select("-__v").populate("guides")
+  this.populate({ path: "guides", select: "name" })
   next()
 })
 
 tourSchema.post(/^find/, function (docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds! `)
-  // console.log(docs)
   next()
 })
 

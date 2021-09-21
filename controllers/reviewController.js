@@ -1,5 +1,5 @@
 const Review = require("../models/reviewModel")
-const APIFeatures = require("../utils/apiFeatures")
+// const APIFeatures = require("../utils/apiFeatures")
 const catchAsync = require("../utils/catchAsync")
 
 exports.getAllReviews = catchAsync(async (req, res, next) => {

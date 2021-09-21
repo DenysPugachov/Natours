@@ -30,7 +30,7 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 })
 
 exports.createTour = catchAsync(async (req, res, next) => {
-  const newTour = await Tour.create(req.body)
+  const newTour = await Tour.create(req.body).populate("reviews")
   res.status(201).json({
     status: "success",
     data: {
@@ -41,13 +41,11 @@ exports.createTour = catchAsync(async (req, res, next) => {
 
 exports.getTour = catchAsync(async (req, res, next) => {
   //findById = Tour.findOne({_id: req.params.id}) => one of the documents
-  const tour = await Tour.findById(req.params.id)
-
+  const tour = await Tour.findById(req.params.id).populate("reviews")
   if (!tour) {
     // tour = null(id schema match but ID NOT exist)
     return next(new AppError("No tour found with that ID", 404))
   }
-
   res.status(200).json({
     status: "success",
     data: {

@@ -12,15 +12,13 @@ const reviewSchema = new mongoose.Schema(
       maxlength: [2000, "A review size overflow (2000 char)."],
       validate: {
         validator: val =>
-          validator.isAlpha(val, ["en-US"], { ignore: " .0123456789" }),
+          validator.isAlpha(val, ["en-US"], { ignore: " .,0123456789!" }),
         message: "A review must only contain characters between A-Z. ",
       },
     },
     rating: {
       type: Number,
       required: [true, "Please, rate this tour."],
-      // min: 1,
-      // max: 5,
       min: [1, "Rating, must be above 1.0"],
       max: [5, "Rating, must be below 5.0"],
     },
@@ -30,11 +28,13 @@ const reviewSchema = new mongoose.Schema(
       select: false,
     },
     tour: {
+      // Parent referencing
       type: mongoose.Schema.ObjectId,
       ref: "Tour",
       required: [true, "Review must belong to a tour."],
     },
     user: {
+      // Parent referencing
       type: mongoose.Schema.ObjectId,
       ref: "User",
       required: [true, "Review must belong to a user (author)."],
@@ -50,7 +50,11 @@ const reviewSchema = new mongoose.Schema(
 
 // populate referencing data with middleware
 reviewSchema.pre(/^find/, function (next) {
-  this.populate("user tour")
+  // populate({ path: "tour", select: "name" })
+  this.populate({
+    path: "user",
+    select: "name photo",
+  })
   next()
 })
 
