@@ -50,6 +50,7 @@ const userSchema = new mongoose.Schema({
     default: true,
     select: false,
   },
+  
 })
 
 //encrypt user password (between getting data and saving it to DB)
