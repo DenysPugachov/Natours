@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 const slugify = require("slugify")
 const validator = require("validator")
-const User = require("./userModel")
+// const User = require("./userModel")
 
 //Schema
 const tourSchema = new mongoose.Schema(
@@ -109,7 +109,12 @@ const tourSchema = new mongoose.Schema(
         day: Number,
       },
     ],
-    guides: Array,
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   //option object
   {
@@ -133,13 +138,13 @@ tourSchema.pre("save", function (next) {
   next() // call next middleware on the stack
 })
 
-// retrieve full guide info in Tour document (Embedding)
-tourSchema.pre("save", async function (next) {
-  // this => current document
-  const guidesPromises = this.guides.map(async id => await User.findById(id))
-  this.guides = await Promise.all(guidesPromises)
-  next()
-})
+// // retrieve full guide info in Tour document (Embedding)
+// tourSchema.pre("save", async function (next) {
+//   // this => current document
+//   const guidesPromises = this.guides.map(async id => await User.findById(id))
+//   this.guides = await Promise.all(guidesPromises)
+//   next()
+// })
 
 //QUERY MIDDLEWARE => pre: processing query ("find" Hook) before execution
 // this = current query obj
@@ -147,6 +152,12 @@ tourSchema.pre("save", async function (next) {
 tourSchema.pre(/^find/, function (next) {
   this.find({ secretTour: { $ne: true } }) // find & hide all documents with "secretTour: true"
   this.start = Date.now()
+  next()
+})
+
+// populate data about "guides" with id (Referencing)
+tourSchema.pre(/^find/, function (next) {
+  this.select("-__v").populate("guides")
   next()
 })
 
