@@ -1,6 +1,7 @@
 const User = require("../models/userModel")
 const AppError = require("../utils/appError")
 const catchAsync = require("../utils/catchAsync")
+const factory = require("./handlerFactory")
 
 const filterObj = (obj, ...allowedFields) => {
   const newFilteredObj = {}
@@ -82,10 +83,11 @@ exports.updateUser = (req, res) => {
   })
 }
 
-exports.deleteUser = (req, res) => {
-  //500 => internal server error
-  res.status(500).json({
-    status: "error",
-    message: "This route is not et defined :(",
-  })
-}
+exports.deleteUser = factory.deleteOne(User)
+// exports.deleteUser = (req, res) => {
+//   //500 => internal server error
+//   res.status(500).json({
+//     status: "error",
+//     message: "This route is not et defined :(",
+//   })
+// }

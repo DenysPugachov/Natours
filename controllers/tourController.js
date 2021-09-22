@@ -2,6 +2,7 @@ const Tour = require("../models/tourModel")
 const APIFeatures = require("../utils/apiFeatures")
 const catchAsync = require("../utils/catchAsync")
 const AppError = require("../utils/appError")
+const factory = require("./handlerFactory")
 
 //querying by certain params (often) => use alias route
 exports.aliasTopTours = (req, res, next) => {
@@ -72,19 +73,20 @@ exports.updateTour = catchAsync(async (req, res, next) => {
   })
 })
 
-exports.deleteTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndDelete(req.params.id)
+exports.deleteTour = factory.deleteOne(Tour)
+// exports.deleteTour = catchAsync(async (req, res, next) => {
+//   const tour = await Tour.findByIdAndDelete(req.params.id)
 
-  if (!tour) {
-    // tour = null(id schema match but ID NOT exist)
-    return next(new AppError("No tour found with that ID", 404))
-  }
-  //204=> no content
-  res.status(204).json({
-    status: "success",
-    data: null, // null => data no longer exist
-  })
-})
+//   if (!tour) {
+//     // tour = null(id schema match but ID NOT exist)
+//     return next(new AppError("No tour found with that ID", 404))
+//   }
+//   //204=> no content
+//   res.status(204).json({
+//     status: "success",
+//     data: null, // null => data no longer exist
+//   })
+// })
 
 //101 Aggregation pipe line
 exports.getTourStats = catchAsync(async (req, res, next) => {
