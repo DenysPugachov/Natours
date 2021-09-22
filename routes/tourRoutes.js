@@ -1,9 +1,13 @@
 const express = require("express")
 const tourController = require("../controllers/tourController")
 const authController = require("../controllers/authController")
-const reviewController = require("../controllers/reviewController")
+const reviewRouter = require("./reviewRoutes")
 
 const router = express.Router()
+
+// POST /tour/id2334/reviews => nested route
+
+router.use("/:tourId/reviewS", reviewRouter) // use on this specific route reviewRouter
 
 router
   .route("/top-5-cheap")
@@ -25,18 +29,6 @@ router
     authController.protect,
     authController.restrictTo("admin", "lead-guide"),
     tourController.deleteTour,
-  )
-
-// POST /tour/id2334/reviews => nested route
-// GET /tour/id2334/reviews => nested route
-// GET /tour/id2334/reviews/id111
-
-router
-  .route("/:tourId/reviews")
-  .post(
-    authController.protect,
-    authController.restrictTo("user"),
-    reviewController.createReview,
   )
 
 module.exports = router
