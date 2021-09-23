@@ -131,6 +131,12 @@ const tourSchema = new mongoose.Schema(
   },
 )
 
+// organize(oder) price field in "Single Field INDEX"es (optimize search)
+// tourSchema.index({ price: 1 })
+// Compound INDEX
+tourSchema.index({ price: 1, ratingsAverage: -1 })
+tourSchema.index({ slug: 1 })
+
 //VIRTUAL PROPERTY: not persisted(saved) on DB, created on GET req.
 // (*not work with query selection)
 tourSchema.virtual("durationWeeks").get(function () {

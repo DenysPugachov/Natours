@@ -65,7 +65,6 @@ exports.getOne = (Model, popOptions) =>
 
 exports.getAll = Model =>
   catchAsync(async (req, res, next) => {
-    //FIXME: to kep in simple.
     // To Allow for nested "Get All Review on Tour" work to
     let filter = {}
     if (req.params.tourId) filter = { tour: req.params.tourId }
@@ -75,7 +74,7 @@ exports.getAll = Model =>
       .sort()
       .limitFields()
       .paginate()
-    const docs = await features.query
+    const docs = await features.query //.explain() => get statistic
 
     res.status(200).json({
       status: "success",
