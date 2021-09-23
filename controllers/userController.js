@@ -75,13 +75,7 @@ exports.getUser = (req, res) => {
   })
 }
 
-exports.updateUser = (req, res) => {
-  //500 => internal server error
-  res.status(500).json({
-    status: "error",
-    message: "This route is not et defined :(",
-  })
-}
+exports.updateUser = factory.updateOne(User)
 
 exports.deleteUser = factory.deleteOne(User)
 // exports.deleteUser = (req, res) => {

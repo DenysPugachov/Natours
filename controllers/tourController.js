@@ -30,16 +30,6 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
   })
 })
 
-exports.createTour = catchAsync(async (req, res, next) => {
-  const newTour = await Tour.create(req.body).populate("reviews")
-  res.status(201).json({
-    status: "success",
-    data: {
-      tour: newTour,
-    },
-  })
-})
-
 exports.getTour = catchAsync(async (req, res, next) => {
   //findById = Tour.findOne({_id: req.params.id}) => one of the documents
   const tour = await Tour.findById(req.params.id).populate("reviews")
@@ -55,38 +45,9 @@ exports.getTour = catchAsync(async (req, res, next) => {
   })
 })
 
-exports.updateTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-    new: true, //validators should run again
-    runValidators: true, //use validator from tourModel
-  })
-
-  if (!tour) {
-    // tour = null(id schema match but ID NOT exist)
-    return next(new AppError("No tour found with that ID", 404))
-  }
-  res.status(200).json({
-    status: "success",
-    data: {
-      tour,
-    },
-  })
-})
-
+exports.createTour = factory.createOne(Tour)
+exports.updateTour = factory.updateOne(Tour)
 exports.deleteTour = factory.deleteOne(Tour)
-// exports.deleteTour = catchAsync(async (req, res, next) => {
-//   const tour = await Tour.findByIdAndDelete(req.params.id)
-
-//   if (!tour) {
-//     // tour = null(id schema match but ID NOT exist)
-//     return next(new AppError("No tour found with that ID", 404))
-//   }
-//   //204=> no content
-//   res.status(204).json({
-//     status: "success",
-//     data: null, // null => data no longer exist
-//   })
-// })
 
 //101 Aggregation pipe line
 exports.getTourStats = catchAsync(async (req, res, next) => {
@@ -174,3 +135,45 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
     },
   })
 })
+
+// exports.updateTour = catchAsync(async (req, res, next) => {
+//   const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+//     new: true, //validators should run again
+//     runValidators: true, //use validator from tourModel
+//   })
+
+//   if (!tour) {
+//     // tour = null(id schema match but ID NOT exist)
+//     return next(new AppError("No tour found with that ID", 404))
+//   }
+//   res.status(200).json({
+//     status: "success",
+//     data: {
+//       tour,
+//     },
+//   })
+// })
+
+// exports.deleteTour = catchAsync(async (req, res, next) => {
+//   const tour = await Tour.findByIdAndDelete(req.params.id)
+
+//   if (!tour) {
+//     // tour = null(id schema match but ID NOT exist)
+//     return next(new AppError("No tour found with that ID", 404))
+//   }
+//   //204=> no content
+//   res.status(204).json({
+//     status: "success",
+//     data: null, // null => data no longer exist
+//   })
+// })
+
+// exports.createTour = catchAsync(async (req, res, next) => {
+//   const newTour = await Tour.create(req.body)
+//   res.status(201).json({
+//     status: "success",
+//     data: {
+//       tour: newTour,
+//     },
+//   })
+// })
