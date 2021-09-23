@@ -13,18 +13,6 @@ const filterObj = (obj, ...allowedFields) => {
   return newFilteredObj
 }
 
-exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find()
-  //SEND RESPONSE
-  res.status(200).json({
-    status: "success",
-    results: users.length,
-    data: {
-      users,
-    },
-  })
-})
-
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1.Create err if user POSTs password data
   if (req.body.password || req.body.passwordConfirm) {
@@ -35,7 +23,6 @@ exports.updateMe = catchAsync(async (req, res, next) => {
       ),
     ) // 400 = bad request
   }
-
   // specify allowed fields to be update
   const filteredBody = filterObj(req.body, "name", "email")
   // 3.Update user document
@@ -49,14 +36,6 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   })
 })
 
-exports.createUser = (req, res) => {
-  //500 => internal server error
-  res.status(500).json({
-    status: "error",
-    message: "This route is not et defined :(",
-  })
-}
-
 exports.deleteMe = catchAsync(async (req, res, next) => {
   // find current logged user and switch active: false
   await User.findByIdAndUpdate(req.user.id, { active: false })
@@ -67,17 +46,13 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   })
 })
 
-exports.getUser = (req, res) => {
-  //500 => internal server error
-  res.status(500).json({
-    status: "error",
-    message: "This route is not et defined :(",
-  })
-}
-
+exports.getAllUsers = factory.getAll(User)
+exports.createUser = factory.createOne(User)
+exports.getUser = factory.getOne(User)
+// Do NOT update password with this
 exports.updateUser = factory.updateOne(User)
-
 exports.deleteUser = factory.deleteOne(User)
+
 // exports.deleteUser = (req, res) => {
 //   //500 => internal server error
 //   res.status(500).json({

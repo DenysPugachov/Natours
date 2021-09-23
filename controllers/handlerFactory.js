@@ -1,3 +1,4 @@
+const APIFeatures = require("../utils/apiFeatures")
 const AppError = require("../utils/appError")
 const catchAsync = require("../utils/catchAsync")
 
@@ -6,10 +7,8 @@ exports.deleteOne = Model =>
     const document = await Model.findByIdAndDelete(req.params.id)
 
     if (!document) {
-      // tour = null(id schema match but ID NOT exist)
       return next(new AppError("No document found with that ID", 404))
     }
-    //204=> no content
     res.status(204).json({
       status: "success",
       data: null, // null => data no longer exist
@@ -18,13 +17,13 @@ exports.deleteOne = Model =>
 
 exports.updateOne = Model =>
   catchAsync(async (req, res, next) => {
+    // Do NOT update password with this
     const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
       new: true, //validators should run again
       runValidators: true, //use validator from tourModel
     })
 
     if (!doc) {
-      // tour = null(id schema match but ID NOT exist)
       return next(new AppError("No document found with that ID", 404))
     }
     res.status(200).json({
@@ -42,6 +41,47 @@ exports.createOne = Model =>
       status: "success",
       data: {
         data: newDoc,
+      },
+    })
+  })
+
+exports.getOne = (Model, popOptions) =>
+  catchAsync(async (req, res, next) => {
+    // const doc = await Model.findById(req.params.id).populate("reviews")
+    let query = Model.findById(req.params.id)
+    if (popOptions) query = query.populate(popOptions)
+    const doc = await query
+
+    if (!doc) {
+      return next(new AppError("No document found with that ID", 404))
+    }
+    res.status(200).json({
+      status: "success",
+      data: {
+        data: doc,
+      },
+    })
+  })
+
+exports.getAll = Model =>
+  catchAsync(async (req, res, next) => {
+    //FIXME: to kep in simple.
+    // To Allow for nested "Get All Review on Tour" work to
+    let filter = {}
+    if (req.params.tourId) filter = { tour: req.params.tourId }
+
+    const features = new APIFeatures(Model.find(filter), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate()
+    const docs = await features.query
+
+    res.status(200).json({
+      status: "success",
+      results: docs.length,
+      data: {
+        data: docs,
       },
     })
   })
