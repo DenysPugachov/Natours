@@ -1,5 +1,7 @@
 const mongoose = require("mongoose")
 const validator = require("validator")
+const Tour = require("./tourModel")
+
 // review / rating / createdAt / ref to tour / ref to user who wrote the review
 
 const reviewSchema = new mongoose.Schema(
@@ -56,6 +58,39 @@ reviewSchema.pre(/^find/, function (next) {
     select: "name photo",
   })
   next()
+})
+
+//static method for calculating average rating for selected Tour(tourId)
+reviewSchema.statics.calcAverageRatings = async function (tourId) {
+  //this = current model
+  const stats = await this.aggregate([
+    {
+      $match: { tour: tourId }, // select all the reviews that match tourId
+    },
+    {
+      $group: {
+        //_id: groping all tours together by tour
+        _id: "$tour",
+        //fields to be displayed
+        nRating: { $sum: 1 }, // + 1 to each tour that match in previous step
+        avgRating: { $avg: "$rating" }, // average of ratings
+      },
+    },
+  ])
+  console.log("stats=", stats)
+
+  //update Tour with statistics data
+  await Tour.findByIdAndUpdate(tourId, {
+    ratingsQuantity: stats[0].nRating,
+    ratingsAverage: stats[0].avgRating,
+  })
+}
+
+// .post = after new review has been created
+reviewSchema.post("save", function () {
+  //this => current review
+  //this.constructor => current Model
+  this.constructor.calcAverageRatings(this.tour)
 })
 
 //create Model out of schema

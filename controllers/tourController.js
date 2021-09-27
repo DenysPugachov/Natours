@@ -10,7 +10,7 @@ exports.aliasTopTours = (req, res, next) => {
   next()
 }
 
-//101 Aggregation pipe line
+// Aggregation pipe line (create statistics)
 exports.getTourStats = catchAsync(async (req, res, next) => {
   const stats = await Tour.aggregate([
     {
