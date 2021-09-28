@@ -1,5 +1,6 @@
 const mongoose = require("mongoose")
 const validator = require("validator")
+const { findByIdAndDelete } = require("./tourModel")
 const Tour = require("./tourModel")
 
 // review / rating / createdAt / ref to tour / ref to user who wrote the review
@@ -77,13 +78,21 @@ reviewSchema.statics.calcAverageRatings = async function (tourId) {
       },
     },
   ])
-  console.log("stats=", stats)
+  console.log("\n", "stats=", stats, "\n")
 
   //update Tour with statistics data
-  await Tour.findByIdAndUpdate(tourId, {
-    ratingsQuantity: stats[0].nRating,
-    ratingsAverage: stats[0].avgRating,
-  })
+  if (stats.length > 0) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: stats[0].nRating,
+      ratingsAverage: stats[0].avgRating,
+    })
+  } else {
+    // Tour has NO review
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: 0,
+      ratingsAverage: 4.5,
+    })
+  }
 }
 
 // .post = after new review has been created
@@ -91,6 +100,19 @@ reviewSchema.post("save", function () {
   //this => current review
   //this.constructor => current Model
   this.constructor.calcAverageRatings(this.tour)
+})
+
+//Recalculate average rating after UPDATING review
+// findByIdAndUpdate, findByIdAndDelete  => /^findOneAnd/
+reviewSchema.pre(/^findOneAnd/, async function (next) {
+  //this. => current query
+  this.r = await this.findOne() // .findOne -> get access to the document
+  next()
+})
+
+reviewSchema.post(/^findOneAnd/, async function (next) {
+  // await this.findOne(); // does NOT work here, query has already executed
+  await this.r.constructor.calcAverageRatings(this.r.tour)
 })
 
 //create Model out of schema
