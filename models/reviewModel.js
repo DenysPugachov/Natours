@@ -51,6 +51,9 @@ const reviewSchema = new mongoose.Schema(
   },
 )
 
+// Allow one user create only one review on one tour
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true })
+
 // populate referencing data with middleware
 reviewSchema.pre(/^find/, function (next) {
   // populate({ path: "tour", select: "name" })
