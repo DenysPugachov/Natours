@@ -5,6 +5,13 @@ const reviewRouter = require("./reviewRoutes")
 
 const router = express.Router()
 
+//Geospatial query
+router
+  .route("/tours-within/:distance/center/:latlng/:unit")
+  .get(tourController.getToursWithin)
+// .../tours-within?distance=123&center=-40,45,unit=miles
+// .../tour-within/233/center/-40,45/unit/miles
+
 router.use("/:tourId/reviews", reviewRouter) // use on specific route (reviewRouter)
 
 router

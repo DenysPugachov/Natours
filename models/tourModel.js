@@ -137,6 +137,7 @@ const tourSchema = new mongoose.Schema(
 // Compound INDEX
 tourSchema.index({ price: 1, ratingsAverage: -1 })
 tourSchema.index({ slug: 1 })
+tourSchema.index({ startLocation: "2dsphere" })
 
 //VIRTUAL PROPERTY: not persisted(saved) on DB, created on GET req.
 // (*not work with query selection)
