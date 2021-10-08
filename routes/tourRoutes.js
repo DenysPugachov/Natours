@@ -12,7 +12,7 @@ router
 // .../tours-within?distance=123&center=-40,45,unit=miles
 // .../tour-within/233/center/-40,45/unit/miles
 
-router.use("/:tourId/reviews", reviewRouter) // use on specific route (reviewRouter)
+router.use("/:tourId/reviews", reviewRouter)
 
 router
   .route("/top-5-cheap")
@@ -26,6 +26,13 @@ router
     authController.restrictTo("admin", "lead-guide", "guide"),
     tourController.getMonthlyPlan,
   )
+
+//GEO
+router
+  .route("/tours-within/:distance/center/:latlang/unit/:unit")
+  .get(tourController.getToursWithin)
+// .../tours-within?distance=233&center=-40,45&unit=mi
+// .../tours-within/233/center/-40,45/unit/mi
 
 router
   .route("/")
