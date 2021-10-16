@@ -190,11 +190,11 @@ tourSchema.post(/^find/, function (docs, next) {
 
 // AGGREGATION MIDDLEWARE => exclude "secretTour: true" from aggregation result
 // this = current aggregation obj
-tourSchema.pre("aggregate", function (next) {
-  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } })
-  console.log(this.pipeline())
-  next()
-})
+// tourSchema.pre("aggregate", function (next) {
+//   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } })
+//   console.log(this.pipeline())
+//   next()
+// })
 
 //Model(UpperCase)
 const Tour = mongoose.model("Tour", tourSchema)
