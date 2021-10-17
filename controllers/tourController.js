@@ -119,6 +119,9 @@ exports.getToursWithin = catchAsync(async (req, res, next) => {
       ),
     )
   }
+
+  console.log("\n==========\n ", distance, latlng, unit)
+
   const tours = await Tour.find({
     startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
   }) //$geoWithin -> finds coord in certain distance
@@ -127,5 +130,46 @@ exports.getToursWithin = catchAsync(async (req, res, next) => {
     status: "success",
     results: tours.length,
     data: { data: tours },
+  })
+})
+
+exports.getDistances = catchAsync(async (req, res, next) => {
+  const { latlng, unit } = req.params
+  const [lat, lng] = latlng.split(",")
+  const multiplier = unit === "mi" ? 0.000621371 : 0.001
+
+  if (!lat || !lng) {
+    next(
+      new AppError(
+        "Please provide latitude and longitude in the format lat, lng",
+        400,
+      ),
+    )
+  }
+
+  const distances = await Tour.aggregate([
+    // $geoNear needs to be the first stage
+    {
+      $geoNear: {
+        near: {
+          type: "Point",
+          coordinates: [lng * 1, lat * 1], // *1 convert to number
+        },
+        distanceField: "distance",
+        distanceMultiplier: multiplier,
+      },
+    },
+    {
+      // $project stage => filtering showing fields
+      $project: {
+        distance: 1,
+        name: 1,
+      },
+    },
+  ])
+
+  res.status(200).json({
+    status: "success",
+    data: { data: distances },
   })
 })
