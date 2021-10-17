@@ -76,7 +76,11 @@ app.use((req, res, next) => {
 
 //ROUTES
 app.get("/", (req, res) => {
-  res.status(200).render("base")
+  res.status(200).render("base", {
+    // variables for Pug (locals)
+    tour: "Forest Hiker (var)",
+    user: "Den_21",
+  })
 })
 
 app.use("/api/v1/tours", tourRouter)

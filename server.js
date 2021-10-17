@@ -27,7 +27,7 @@ mongoose
     useFindAndModify: false,
     useUnifiedTopology: true,
   })
-  .then(con => {
+  .then(() => {
     // console.log(con.connections)
     console.log("DB connection successful!")
   })
