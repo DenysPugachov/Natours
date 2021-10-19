@@ -78,7 +78,7 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.status(200).render("base", {
     // variables for Pug (locals)
-    tour: "Forest Hiker (var)",
+    tour: "Forest Hiker ",
     user: "Den_21",
   })
 })
