@@ -13,7 +13,8 @@ const DB = process.env.DATABASE.replace(
 )
 
 mongoose
-  // .connect(process.env.DATABASE_LOCAL,{ // for local DB connection
+  // for local DB connection
+  // .connect(process.env.DATABASE_LOCAL, {
   .connect(DB, {
     useNewUrlParser: true,
     useCreateIndex: true,
@@ -64,3 +65,6 @@ if (process.argv[2] === "--import") {
 }
 
 console.log(process.argv)
+
+// node ./dev-data/data/import-dev-data.js --delete
+// node ./dev-data/data/import-dev-data.js --import
