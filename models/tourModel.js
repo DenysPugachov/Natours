@@ -179,7 +179,7 @@ tourSchema.pre(/^find/, function (next) {
 
 // populate data about "guides" with id (Referencing)
 tourSchema.pre(/^find/, function (next) {
-  this.populate({ path: "guides", select: "name" })
+  this.populate({ path: "guides", select: "name photo role" })
   next()
 })
 
