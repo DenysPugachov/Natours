@@ -41,5 +41,6 @@
         "argsIgnorePattern": "req|res|next|val"
       }
     ]
-  }
+  },
+  "sourceType": "module"
 }
