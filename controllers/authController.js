@@ -107,6 +107,32 @@ exports.protect = catchAsync(async (req, res, next) => {
   next()
 })
 
+//This middleware only for rendered pages, NO errors!
+exports.isLoggedIn = catchAsync(async (req, res, next) => {
+  // jwt form cookie
+  if (req.cookies.jwt) {
+    // Verify token(if someone change data || token expired)
+    const decoded = await promisify(jwt.verify)(
+      req.cookies.jwt,
+      process.env.JWT_SECRET,
+    )
+    //verify is user still exist at this moment?
+    const currentUser = await User.findById(decoded.id)
+    if (!currentUser) {
+      return next()
+    }
+
+    // Check if user has change password after the token was issued?
+    if (currentUser.changedPasswordAfter(decoded.iat)) {
+      return next()
+    }
+    // THIS IS A LOGGED USER!
+    res.locals.user = currentUser // pass data to pug with "locals"
+    return next()
+  }
+  next()
+})
+
 //passing arguments to middleware func with array [who will allow modify data]
 // eslint-disable-next-line arrow-body-style
 exports.restrictTo = (...roles) => {
