@@ -63,19 +63,21 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError("Incorrect email or password!", 401)) // 401 = unauthorize
   }
   // send token to client
-  createSendToken(user, 201, res)
+  createSendToken(user, 200, res)
 })
 
 // protect rout from unauthenticated users
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Get token
-  // console.log("from protect", req.headers)
   let token
   if (
     req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
+    req.headers.authorization.startsWith("Bearer") // only jwt start with "Bearer"
   ) {
     token = req.headers.authorization.split(" ")[1]
+  } else if (req.cookies.jwt) {
+    // jwt form cookie
+    token = req.cookies.jwt
   }
 
   if (!token) {
