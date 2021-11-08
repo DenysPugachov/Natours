@@ -27,3 +27,17 @@ export const login = async (email, password) => {
     showAlert("error", err.response.data.message)
   }
 }
+
+export const logout = async () => {
+  try {
+    const res = await axios({
+      method: "GET",
+      url: "http://localhost:3000/api/v1/users/logout",
+    })
+    //TODO: location.reload(true) => force reload page (deprecated)
+    if (res.data.status === "success") location.reload()
+  } catch (err) {
+    console.log(err.response)
+    showAlert("error", "Error logging out! Try again.")
+  }
+}

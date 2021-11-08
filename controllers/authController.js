@@ -66,6 +66,15 @@ exports.login = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res)
 })
 
+exports.logout = (req, res) => {
+  //send cookie with same name (it will override old cookie), but without jwt (use "logged out" instead)
+  res.cookie("jwt", "logged out", {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  })
+  res.status(200).json({ status: "success" })
+}
+
 // protect rout from unauthenticated users
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Get token
@@ -108,30 +117,35 @@ exports.protect = catchAsync(async (req, res, next) => {
 })
 
 //This middleware only for rendered pages, NO errors!
-exports.isLoggedIn = catchAsync(async (req, res, next) => {
-  // jwt form cookie
+exports.isLoggedIn = async (req, res, next) => {
   if (req.cookies.jwt) {
-    // Verify token(if someone change data || token expired)
-    const decoded = await promisify(jwt.verify)(
-      req.cookies.jwt,
-      process.env.JWT_SECRET,
-    )
-    //verify is user still exist at this moment?
-    const currentUser = await User.findById(decoded.id)
-    if (!currentUser) {
-      return next()
-    }
+    try {
+      // jwt form cookie
+      // Verify token(if someone change data || token expired)
+      const decoded = await promisify(jwt.verify)(
+        req.cookies.jwt,
+        process.env.JWT_SECRET,
+      )
+      //verify is user still exist at this moment?
+      const currentUser = await User.findById(decoded.id)
+      if (!currentUser) {
+        return next()
+      }
 
-    // Check if user has change password after the token was issued?
-    if (currentUser.changedPasswordAfter(decoded.iat)) {
+      // Check if user has change password after the token was issued?
+      if (currentUser.changedPasswordAfter(decoded.iat)) {
+        return next()
+      }
+      // THIS IS A LOGGED USER!
+      res.locals.user = currentUser // pass data to pug with "locals"
+      return next()
+    } catch (err) {
+      // if There is NO logged in user!
       return next()
     }
-    // THIS IS A LOGGED USER!
-    res.locals.user = currentUser // pass data to pug with "locals"
-    return next()
   }
   next()
-})
+}
 
 //passing arguments to middleware func with array [who will allow modify data]
 // eslint-disable-next-line arrow-body-style
