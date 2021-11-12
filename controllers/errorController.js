@@ -23,45 +23,74 @@ const handleCastErrorDB = err => {
   return new AppError(message, 400)
 }
 
-const sendErrorDev = (err, res) => {
-  console.log("sendErrorDev = ", err)
-  res.status(err.statusCode).json({
-    status: err.status,
-    error: err,
-    message: err.message,
-    stack: err.stack,
+const sendErrorDev = (err, req, res) => {
+  //originalUrl =  url without host (just route) start with /api.
+  // a)Error for API
+  if (req.originalUrl.startsWith("/api")) {
+    return res.status(err.statusCode).json({
+      status: err.status,
+      error: err,
+      message: err.message,
+      stack: err.stack,
+    })
+  }
+  // b)Error for RENDERED WEBSITE
+  console.error("ERROR! ", err)
+  return res.status(err.statusCode).render("error", {
+    title: "Something went wrong!",
+    msg: err.message,
   })
 }
 
-const sendErrorProd = (err, res) => {
-  //Operational, trusted error: send message to client
-  if (err.isOperational) {
-    res.status(err.statusCode).json({
-      status: err.status,
-      message: err.message,
-    })
-    //Programming error or other unknown error: do NOT leak error to client
-  } else {
-    //1)log the error
-    console.error("ERROR! ", err)
-    //2)Send generic message
-    res.status(500).json({
-      status: "error",
-      message: "Something went very wrong!",
+const sendErrorProd = (err, req, res) => {
+  console.log("Production mode!")
+  // a)Error for API:
+  //originalUrl =  url without host (just route) start with /api.
+  if (req.originalUrl.startsWith("/api")) {
+    //Operational = trusted error: send message to client
+    if (err.isOperational) {
+      return res.status(err.statusCode).json({
+        status: err.status,
+        message: err.message,
+      })
+    }
+    //Programming error, or other unknown error: do NOT send error to client.
+    // console.error("ERROR! ", err)
+
+    console.log("======62 errorController Not operational, production mode!")
+    //Send generic message
+    return res.status(err.statusCode).render("error", {
+      title: "Something went wrong!",
+      msg: err.message,
     })
   }
+
+  // b)Error for WEBSITE:
+  //1.Operational = trusted error: send message to client
+  if (err.isOperational) {
+    return res.status(err.statusCode).render("error", {
+      title: "Something went wrong!",
+      msg: err.message,
+    })
+  }
+  //2.Programming error, or other unknown error: do NOT send error to client
+  //Send generic message
+  return res.status(err.statusCode).render("error", {
+    title: "Something went wrong!",
+    msg: "Please try again later",
+  })
 }
 
 module.exports = (err, req, res, next) => {
-  // console.log(err.stack)
   err.statusCode = err.statusCode || 500 // 500 - internal sever error
   err.status = err.status || "error"
 
   if (process.env.NODE_ENV === "development") {
-    sendErrorDev(err, res)
+    sendErrorDev(err, req, res)
   } else if (process.env.NODE_ENV === "production") {
     //deep copy obj ({...err} => error.name=undefined)
-    let error = JSON.parse(JSON.stringify(err))
+    let error = JSON.parse(JSON.stringify(err)) // not copy err.message!!!
+    error.message = err.message // fixing buggy copy form obj err
 
     if (error.name === "CastError") error = handleCastErrorDB(error)
     if (error.code === 11000) error = handleDuplicateFieldsDB(error)
@@ -69,6 +98,8 @@ module.exports = (err, req, res, next) => {
     if (error.name === "JsonWebTokenError") error = handleJWTError()
     if (error.name === "TokenExpiredError") error = handleJWTExpiredError()
 
-    sendErrorProd(error, res)
+    sendErrorProd(error, req, res)
+  } else {
+    console.error("process.env.NODE_ENV === unknown!???????")
   }
 }
