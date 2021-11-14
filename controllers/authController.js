@@ -113,6 +113,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
   //Grant access to protected route (with current token)
   req.user = currentUser
+  res.locals.user = currentUser // pass data to pug with "locals" property
   next()
 })
 
@@ -137,7 +138,7 @@ exports.isLoggedIn = async (req, res, next) => {
         return next()
       }
       // THIS IS A LOGGED USER!
-      res.locals.user = currentUser // pass data to pug with "locals"
+      res.locals.user = currentUser // pass data to pug with "locals" property
       return next()
     } catch (err) {
       // if There is NO logged in user!
