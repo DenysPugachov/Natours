@@ -49,6 +49,10 @@ app.use(
     limit: "10kb", // limit data coming from body
   }),
 )
+
+//urlEncoded => parse data form "<form>" element to req.body
+app.use(express.urlencoded({ extended: true, limit: "10kb" }))
+
 //cookieParser => parse the data form cookies (jwt)
 app.use(cookieParser())
 
