@@ -20,6 +20,9 @@ exports.getMe = (req, res, next) => {
 }
 
 exports.updateMe = catchAsync(async (req, res, next) => {
+  console.log("---23-userController: file: ", req.file)
+  console.log("---23-userController: body: ", req.body)
+
   // 1.Create err if user POSTs password data
   if (req.body.password || req.body.passwordConfirm) {
     return next(
