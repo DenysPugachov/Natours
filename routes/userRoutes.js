@@ -1,10 +1,7 @@
 const express = require("express")
-const multer = require("multer")
+
 const userController = require("../controllers/userController")
 const authController = require("../controllers/authController")
-
-// Define settings: where to upload new user images.
-const upload = multer({ dest: "public/img/users" })
 
 const router = express.Router()
 
@@ -21,7 +18,11 @@ router.use(authController.protect)
 router.patch("/updateMyPassword", authController.updatePassword)
 
 router.get("/me", userController.getMe, userController.getUser)
-router.patch("/updateMe", upload.single("photo"), userController.updateMe)
+router.patch(
+  "/updateMe",
+  userController.uploadUserPhoto,
+  userController.updateMe,
+)
 router.delete("/deleteMe", userController.deleteMe)
 
 // Only for Administrators after this middleware

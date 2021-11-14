@@ -1,7 +1,39 @@
+const multer = require("multer")
 const User = require("../models/userModel")
 const AppError = require("../utils/appError")
 const catchAsync = require("../utils/catchAsync")
 const factory = require("./handlerFactory")
+
+//Store file to the disk
+const multerStorage = multer.diskStorage({
+  //destination where to store files
+  destination: (req, file, cb) => {
+    cb(null, "public/img/users")
+  },
+  //extract file name form uploaded file
+  filename: (req, file, cb) => {
+    const ext = file.mimetype.split("/")[1] // get extension of the file
+    //fileName: user-id-timeStamp.jpeg
+    cb(null, `user-${req.user.id}-${Date.now()}.${ext}`)
+  },
+})
+
+//filter uploaded files => only images allow
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image")) {
+    cb(null, true) // no error (file => image)
+  } else {
+    cb(new AppError("Not an image! Please upload only images!", 400), false)
+  }
+}
+
+// Define settings for upload new user images
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+})
+
+exports.uploadUserPhoto = upload.single("photo")
 
 const filterObj = (obj, ...allowedFields) => {
   const newFilteredObj = {}
