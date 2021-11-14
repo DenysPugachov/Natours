@@ -52,8 +52,8 @@ exports.getMe = (req, res, next) => {
 }
 
 exports.updateMe = catchAsync(async (req, res, next) => {
-  console.log("---23-userController: file: ", req.file)
-  console.log("---23-userController: body: ", req.body)
+  // console.log("---23-userController: file: ", req.file)
+  // console.log("---23-userController: body: ", req.body)
 
   // 1.Create err if user POSTs password data
   if (req.body.password || req.body.passwordConfirm) {
@@ -66,6 +66,9 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   }
   // specify allowed fields to be update
   const filteredBody = filterObj(req.body, "name", "email")
+  //add file path to update middleware
+  if (req.file) filteredBody.photo = req.file.filename
+
   // 3.Update user document
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     new: true,
