@@ -35,7 +35,7 @@ export const logout = async () => {
       url: "http://localhost:3000/api/v1/users/logout",
     })
     //TODO: location.reload(true) => force reload page (deprecated)
-    if (res.data.status === "success") location.reload()
+    if (res.data.status === "success") location.assign("/login")
   } catch (err) {
     console.log(err.response)
     showAlert("error", "Error logging out! Try again.")
