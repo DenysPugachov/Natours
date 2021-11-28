@@ -1,7 +1,38 @@
+const multer = require("multer")
+const sharp = require("sharp")
 const Tour = require("../models/tourModel")
 const AppError = require("../utils/appError")
 const catchAsync = require("../utils/catchAsync")
 const factory = require("./handlerFactory")
+
+// save to the RAM (as buffer)
+const multerStorage = multer.memoryStorage()
+
+//filter uploaded files => only images allow
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image")) {
+    cb(null, true) // no error (file = image)
+  } else {
+    cb(new AppError("Not an image! Please upload only images!", 400), false)
+  }
+}
+
+// Define settings for upload new user images
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+})
+
+exports.uploadTourImages = upload.fields([
+  { name: "imageCover", maxCount: 1 }, //maxCount: can have only 1 file with name "imageCover"
+  { name: "images", maxCount: 3 },
+])
+
+//processes images
+exports.resizeTourImages = (req, res, next) => {
+  console.log(req.files)
+  next()
+}
 
 //querying by certain params (often) => use alias route
 exports.aliasTopTours = (req, res, next) => {
