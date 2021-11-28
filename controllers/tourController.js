@@ -29,10 +29,43 @@ exports.uploadTourImages = upload.fields([
 ])
 
 //processes images
-exports.resizeTourImages = (req, res, next) => {
-  console.log(req.files)
+exports.resizeTourImages = catchAsync(async (req, res, next) => {
+  // console.log(req.files)
+
+  //no images uploaded
+  if (!req.files.imageCover || !req.files.images) return next()
+
+  // 1) Cover image
+
+  //put new image name to req
+  req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`
+
+  await sharp(req.files.imageCover[0].buffer)
+    .resize(2000, 1333) //resize(width, hight)
+    .toFormat("jpeg")
+    .jpeg({ quality: 90 }) // 90%
+    .toFile(`public/img/tours/${req.body.imageCover}`)
+
+  // 2) other images (in a loop)
+  req.body.images = []
+
+  // use .map() for waiting async pushing all img to req.body
+  await Promise.all(
+    req.files.images.map(async (file, i) => {
+      const fileName = `tour-${req.params.id}-${Date.now()}-${i + 1}.jpeg`
+
+      await sharp(file.buffer)
+        .resize(2000, 1333) //resize(width, hight)
+        .toFormat("jpeg")
+        .jpeg({ quality: 90 }) // 90%
+        .toFile(`public/img/tours/${fileName}`)
+
+      req.body.images.push(fileName)
+    }),
+  )
+
   next()
-}
+})
 
 //querying by certain params (often) => use alias route
 exports.aliasTopTours = (req, res, next) => {
